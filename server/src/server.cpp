@@ -35,9 +35,43 @@ void Server::setupSocket(){
 	if (bind(serverFd_ , (sockaddr*)&addr , sizepf(addr)) < 0 )
 		throw std::runtime_error("Failed to bind");
 
-	if(listen(ServerFd_ , 10) < 0) 
+	if(listen(serverFd_ , 10) < 0) 
 		throw std::runtime_error("Failed to lieten");
 
+	epollFd_ = epoll_create1(0);
+	if(epollFd_ < 0)
+		throw std::runtime_error("Failed to create epoll");
+
+	epoll_event ev{};
+	ev.events = EPOLLIN;
+	ev.data.fd = serverFd_;
+	epoll_ctl(epollFd_ , EPOLL_CTL_ADD , serverFd_ , &ev);
+
+	std::cout << "[Server] Litening on port " << port_ << "\n";
+}
+
+void Server::run() {
+    epoll_event events[MAX_EVENTS];
+    std::cout << "[Server] Event loop started\n";
+
+    while (true) {
+        int nEvents = epoll_wait(epollFd_, events, MAX_EVENTS, -1);
+        if (nEvents < 0) {
+            std::cerr << "[Server] epoll_wait error\n";
+            break;
+        }
+
+        for (int i = 0; i < nEvents; i++) {
+            int fd = events[i].data.fd;
+
+            if (fd == serverFd_)
+                handleNewConnection();
+            else
+                handleClientData(fd);
+        }
+    }
+}
+ 
 
 
 	
