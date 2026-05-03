@@ -1,3 +1,0 @@
-/mnt/c/Users/user/NextStep_Chat/server/build/CMakeFiles/nextstep_server.dir
-/mnt/c/Users/user/NextStep_Chat/server/build/CMakeFiles/edit_cache.dir
-/mnt/c/Users/user/NextStep_Chat/server/build/CMakeFiles/rebuild_cache.dir
