@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/nextstep_server.dir/src/main.o CMakeFiles/nextstep_server.dir/src/server.o CMakeFiles/nextstep_server.dir/src/session.o CMakeFiles/nextstep_server.dir/src/auth.o CMakeFiles/nextstep_server.dir/src/chat.o CMakeFiles/nextstep_server.dir/src/database.o -o nextstep_server  -lpthread -lsqlite3 

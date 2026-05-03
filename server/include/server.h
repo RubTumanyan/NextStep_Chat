@@ -1,8 +1,27 @@
-//
-// Created by user on 2026-04-19.
-//
+#pragma once
+#include <sys/epoll.h>
+#include <string>
+#include <unordered_map>
 
-#ifndef UNTITLED_SERVER_H
-#define UNTITLED_SERVER_H
 
-#endif //UNTITLED_SERVER_H
+class Server{
+public:
+	Server(int port);
+	~Server();
+
+	void run();
+private:
+	void setupSocket();
+	void handleNewConnection();
+	void handleClientData(int clientFd);
+	void disconnectClient(int clientFd);
+
+	int port_;
+	int serverFd_;
+	int epollFd_;
+
+	std::unordered_map<int,std::string> clients_;
+
+	static const int MAX_EVENTS = 64;
+	static const int BUFFER_SIZE = 4096;
+};

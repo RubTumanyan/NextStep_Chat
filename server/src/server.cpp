@@ -7,15 +7,19 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
-Server::Server(int port) : port_(port) , serverFd_(-1) , epollFd(-1){
+Server::Server(int port) : port_(port) , serverFd_(-1) , epollFd_(-1){
 	setupSocket();
 }
 
+
+
 Server::~Server() {
-	if(serverFd != -1) close(serverFd_);
+	if(serverFd_ != -1) close(serverFd_);
 	if(epollFd_ != -1) close(epollFd_);
 
 }
+
+
 
 void Server::setupSocket(){
 	serverFd_ = socket(AF_INET , SOCK_STREAM , 0);
@@ -32,7 +36,8 @@ void Server::setupSocket(){
 	addr.sin_addr.s_addr = INADDR_ANY;
 
 
-	if (bind(serverFd_ , (sockaddr*)&addr , sizepf(addr)) < 0 )
+	if (bind(serverFd_ , (sockaddr*)&addr , sizeof(addr)) < 0 )
+
 		throw std::runtime_error("Failed to bind");
 
 	if(listen(serverFd_ , 10) < 0) 
@@ -49,6 +54,9 @@ void Server::setupSocket(){
 
 	std::cout << "[Server] Litening on port " << port_ << "\n";
 }
+
+
+
 
 void Server::run() {
     epoll_event events[MAX_EVENTS];
@@ -71,7 +79,51 @@ void Server::run() {
         }
     }
 }
- 
 
 
-	
+
+void Server::handleNewConnection(){
+	sockaddr_in clientAddr{};
+	socklen_t len = sizeof(clientAddr);
+
+	int clientFd = accept(serverFd_ , (sockaddr*)&clientAddr , &len);
+
+	if(clientFd < 0){
+		std::cerr<<"Failed to accept the new connection(cleint)" << std::endl;
+		return;
+	}
+	epoll_event ev{};
+	ev.events = EPOLLIN;
+	ev.data.fd = clientFd;
+
+	epoll_ctl(epollFd_ , EPOLL_CTL_ADD , clientFd , &ev);
+        clients_[clientFd] = "";
+	std::cout << "[Server] new connection client fd : " << clientFd << "\n";
+}
+
+
+
+void Server::handleClientData(int clientFd){
+	char buffer[BUFFER_SIZE];
+	memset(buffer ,  0 , BUFFER_SIZE);
+
+	int bytesRead = recv(clientFd , buffer , BUFFER_SIZE - 1 , 0);
+	if(bytesRead <= 0){
+		disconnectClient(clientFd);
+		return;
+	}
+
+	std::string msg(buffer , bytesRead);
+	std::cout << "fd = " << clientFd << "the message is " << msg << "\n";
+	send(clientFd , buffer , bytesRead , 0);
+}
+
+
+
+void Server::disconnectClient(int clientFd){
+
+        std::cout << "[Server] CLient fd : " << clientFd << "disconnect\n";
+	epoll_ctl(epollFd_ , EPOLL_CTL_DEL , clientFd , nullptr);
+	close(clientFd);
+	clients_.erase(clientFd);
+}
