@@ -2,7 +2,7 @@ NextStep Chat
 
 A modern full-stack chat application built with:
 
- C++ (Boost.Asio) backend
+ C++ backend
  Qt client interface
  Real-time communication (TCP/WebSocket)
  Database support (PostgreSQL / SQLite)
