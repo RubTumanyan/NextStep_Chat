@@ -7,6 +7,9 @@
 #include <netinet/in.h>
 #include <unistd.h>
 
+#include "protocol.hpp"
+#include "models.hpp"
+
 Server::Server(int port) : port_(port) , serverFd_(-1) , epollFd_(-1){
 	setupSocket();
 }
@@ -113,9 +116,33 @@ void Server::handleClientData(int clientFd){
 		return;
 	}
 
-	std::string msg(buffer , bytesRead);
-	std::cout << "fd = " << clientFd << "the message is " << msg << "\n";
-	send(clientFd , buffer , bytesRead , 0);
+	std::string raw(buffer, bytesRead);
+
+	Message msg = Message::fromJson(raw);
+	MessageType type = stringToType(msg.type);
+
+	std::cout << "[fd = "<< clientFd << "] type = " << msg.type <<"from = " << msg.from << "\n";
+
+	switch(type) {
+		case MessageType::AUTH_LOGIN:
+		case MessageType::AUTH_REGISTER: {
+			Message response;
+			response.type = typeToString(MessageType::AUTH_OK);
+			response.body = "Welcome " + msg.from;
+		        std::string resp = response.toJson();
+		        send(clientFd , resp.c_str() , resp.size() , 0);
+			break;
+		}
+                
+		default: {
+			Message response;
+			response.type = typeToString(MessageType::SERVER_ERROR);
+			response.body = "UNKNOWN MESSAGE TYPE";
+		        std::string resp = response.toJson();
+		        send(clientFd , resp.c_str(), resp.size() , 0);
+		        break;
+	        }
+	}	 
 }
 
 

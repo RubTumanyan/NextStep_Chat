@@ -8,8 +8,8 @@ add_executable(nextstep_server
 	)
 
 target_include_directories(nextstep_server PRIVATE 
-	${CMAKE_CURRENT_SOURCE_DIR}/include
-	${CMAKE_SOURCE_DIR}/shared
+	${CMAKE_CURRENT_LIST_DIR}/include
+        ${CMAKE_CURRENT_LIST_DIR}/../shared
 	)
 
 target_link_libraries(nextstep_server PRIVATE

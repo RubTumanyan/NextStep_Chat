@@ -55,7 +55,7 @@ inline std::string typeToString(MessageType t){
 }
 
 
-inline MessageType strigToType(const std::string& s){
+inline MessageType stringToType(const std::string& s){
 
 	if(s == "AUTH_REGISTER")  return MessageType::AUTH_REGISTER;
 	if(s == "AUTH_LOGIN")     return MessageType::AUTH_LOGIN;
