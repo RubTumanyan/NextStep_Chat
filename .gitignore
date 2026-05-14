@@ -1,19 +1,26 @@
 # build folders
 build/
-server/build/
+**/build/
 
 # object files
 *.o
 *.obj
+
+# precompiled headers
+*.gch
 
 # cmake
 CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 Makefile
+CMakeUserPresets.json
 
 # executables
 nextstep_server
+*.exe
+*.out
+*.app
 
 # editor files
 *.swp

@@ -14,16 +14,16 @@ public:
 
 	int fd() const { return fd_; }
         int userId() const { return userId_; }
-        std::string username() const { return username_; }
+        const std::string& username() const { return username_; }
 	SessionState state() const { return state_; }
 	bool isLoggedIn() const { return state_ == SessionState::LOGGED_IN; }
 
-	void login(int userId , std::string& username);
+	void login(int userId ,const std::string& username);
 	void logout();
 
-	void joinRoom(std::string& room);
-	void leaveRoom(std::string& room);
-	bool inRoom(std::string& room) const;
+	void joinRoom(const std::string& room);
+	void leaveRoom(const std::string& room);
+	bool isInRoom(const std::string& room) const;
 
 	const std::unordered_set<std::string>& rooms()const { return rooms_; }
 

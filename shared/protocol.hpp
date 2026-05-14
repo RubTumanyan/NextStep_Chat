@@ -45,12 +45,12 @@ inline std::string typeToString(MessageType t){
 		case MessageType::ROOM_CREATE:   return  "ROOM_CREATE";
 		case MessageType::AUTH_OK:       return  "AUTH_OK";
 		case MessageType::AUTH_FAIL:     return  "AUTH_FAIL";
-		case MessageType::MSG_RECIEVE:   return  "MSG_RECIEVED";
+		case MessageType::MSG_RECIEVE:   return  "MSG_RECEIVED";
 		case MessageType::ROOM_JOINED:   return  "ROOM_JOINED";
 		case MessageType::ROOM_LEFT:     return  "ROOM_LEFT";
 		case MessageType::SERVER_ERROR:  return  "SERVER_ERROR";
                 
-                dafault:                         return  "UNKNOWN";
+                default:                         return  "UNKNOWN";
 	}
 }
 

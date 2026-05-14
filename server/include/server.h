@@ -2,7 +2,8 @@
 #include <sys/epoll.h>
 #include <string>
 #include <unordered_map>
-
+#include "Session.h"
+#include <memory>
 
 class Server{
 public:
@@ -20,7 +21,7 @@ private:
 	int serverFd_;
 	int epollFd_;
 
-	std::unordered_map<int,std::string> clients_;
+	std::unordered_map<int,std::shared_ptr<Session>> sessions_;
 
 	static const int MAX_EVENTS = 64;
 	static const int BUFFER_SIZE = 4096;

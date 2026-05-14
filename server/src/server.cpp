@@ -100,7 +100,7 @@ void Server::handleNewConnection(){
 	ev.data.fd = clientFd;
 
 	epoll_ctl(epollFd_ , EPOLL_CTL_ADD , clientFd , &ev);
-        clients_[clientFd] = "";
+        sessions_[clientFd] = std::make_shared<Session>(clientFd);
 	std::cout << "[Server] new connection client fd : " << clientFd << "\n";
 }
 
@@ -115,6 +115,8 @@ void Server::handleClientData(int clientFd){
 		disconnectClient(clientFd);
 		return;
 	}
+        
+        auto& session = sessions_[clientFd];
 
 	std::string raw(buffer, bytesRead);
 
@@ -126,6 +128,8 @@ void Server::handleClientData(int clientFd){
 	switch(type) {
 		case MessageType::AUTH_LOGIN:
 		case MessageType::AUTH_REGISTER: {
+
+                        session->login(1 , msg.from);
 			Message response;
 			response.type = typeToString(MessageType::AUTH_OK);
 			response.body = "Welcome " + msg.from;
@@ -133,6 +137,32 @@ void Server::handleClientData(int clientFd){
 		        send(clientFd , resp.c_str() , resp.size() , 0);
 			break;
 		}
+
+		case MessageType::AUTH_LOGOUT: {
+			session->logout();
+		}
+
+		case MessageType::ROOM_JOIN: {
+			if(!session->isLoggedIn()){
+				Message err;
+				err.type = typeToString(MessageType::SERVER_ERROR);
+				err.body = "Not logged in";
+				std::string resp = err.toJson();
+				send(clientFd , resp.c_str() , resp.size() , 0);
+				break;
+
+			}
+			session->joinRoom(msg.room);
+
+                        Message response;
+			response.type = typeToString(MessageType::ROOM_JOINED);
+			response.room = msg.room;
+			response.body = "Joined " + msg.room;
+			std::string resp = response.toJson();
+			send(clientFd , resp.c_str() , resp.size() , 0 );
+			break;
+					     }
+
                 
 		default: {
 			Message response;
@@ -152,5 +182,5 @@ void Server::disconnectClient(int clientFd){
         std::cout << "[Server] CLient fd : " << clientFd << "disconnect\n";
 	epoll_ctl(epollFd_ , EPOLL_CTL_DEL , clientFd , nullptr);
 	close(clientFd);
-	clients_.erase(clientFd);
+	sessions_.erase(clientFd);
 }
